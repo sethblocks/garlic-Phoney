@@ -1,12 +1,43 @@
+
+#from fastapi import FastAPI, Request
+from typing import Union
 import requests
 from transformers import pipeline
-from PIL import Image
 import io
 import base64
-import flask
-kwords = pipeline("text2text-generation", model="google/flan-t5-large", device="cpu")
+from PIL import Image
+from fastapi import FastAPI, Request
+global prompt
+prompt = "Oragami Christmas Tree"
 
+app = FastAPI()
+
+
+@app.get("/")
+def read_root():
+    return "Garlic Phoney Server Online!"
+
+@app.get("/check")
+def check():
+    return {"prompt": prompt}
+
+@app.post("/prompt")
+async def setprompt(pr: Request):
+    global prompt
+    input = await pr.json()
+    prompt = input["prompt"]
+    return {"result": 1}
+
+#
+#Setup AIs
+#
+
+kwords = pipeline("text2text-generation", model="google/flan-t5-large", device="cpu")
 pipe = pipeline("image-to-text", model="Salesforce/blip-image-captioning-large", device="cuda")
+
+#
+#Setup Functions
+#
 
 def turn(prompt):
     response = requests.post("http://192.168.1.231:7860/sdapi/v1/txt2img", json={"prompt": prompt, "steps": 1, "cfg_scale": 1})
@@ -31,14 +62,9 @@ def fail(success):
 
     return kwords("Form a scene using these keywords: " + uc)[0]['generated_text']
 
-prompt = "Dog laying under a christmas tree"
-
-for i in range(3):
+while True:
     img = gen(prompt)
-
-    clear_output()
-    display(img)
     
     prompt = pipe(img)[0]['generated_text']
     prompt = fail(prompt)
-    print("OH! I think I see \"" + prompt + "\"")
+    print("Last output \"" + prompt + "\"")
