@@ -54,7 +54,47 @@
                 flex-direction: row;
                 
             }
+            .bubble{
+                background-color: #1e008b;
+                border-radius: 5mm;
+            }
         </style>
+        <script>
+            function bubble(txt, img){
+                return "<div class=\"bubble\"><h2 style=\"margin:5mm; color:white\">" + txt + "</h2><img src=\"" + img + "\" style= \"width:75%; margin:12.5%; border-radius:20%\"></div>"
+            }
+            
+
+            fetch('http://127.0.0.1:8000/check/', {redirect: 'follow', method: 'GET'}).then(
+                    response => response.json()
+            ).then(data =>{
+                //document.getElementById("cprompt").innerHTML = data['prompt'];
+                    
+                //let img = "data:image/png;base64, " + data['image']
+                //document.getElementById("odat").innerHTML = document.getElementById("odat").innerHTML + bubble(document.getElementById("cprompt").innerHTML, img);
+                //document.getElementById("cphoto").setAttribute("src", "data:image/png;base64, " + data['image']);
+                
+                
+                    
+            });
+            
+            function update(){
+                return fetch('http://127.0.0.1:8000/check/', {redirect: 'follow', method: 'GET'}).then(
+                    response => response.json()
+                ).then(data =>{
+                    
+                    let img = "data:image/png;base64, " + data['image']
+                    
+                    document.getElementById("cprompt").innerHTML = data['prompt'];
+                    if (document.getElementById("cphoto").getAttribute("src") != img){
+                        document.getElementById("odat").innerHTML = document.getElementById("odat").innerHTML + bubble(document.getElementById("cprompt").innerHTML, img);
+                        document.getElementById("cphoto").setAttribute("src", "data:image/png;base64, " + data['image']);
+                    }
+                });
+            }
+            setInterval(update, 500)
+            
+        </script>
 
     </head>
     <body>
@@ -63,10 +103,10 @@
             <p class="desc">AI powered Gartic Phone Remake!</p>
         </div>
         <div class="content">
-            <div class="window" style="height: 50px; border-top-right-radius: 10px; border-top-left-radius: 10px;">Disconnected :(</div>
+            <div class="window" id="cprompt" style="height: 50px; border-top-right-radius: 10px; border-top-left-radius: 10px;">Disconnected :(</div>
             <div class="columns">
-                <div class="column">Disconnected! Are you using garlic.py?</div>
-                <div class="column" style="width:40%">Please Wait...</div>
+                <div class="column">Disconnected! Are you using garlic.py?<img id="cphoto" src="" alt="Image will show here when connected"></div>
+                <div class="column" id="odat"style="width:40%">Please Wait...</div>
             </div>
 
 

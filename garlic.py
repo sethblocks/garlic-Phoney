@@ -4,14 +4,29 @@ from typing import Union
 import requests
 from transformers import pipeline
 import io
+from io import BytesIO
 import base64
 from PIL import Image
 from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
 global prompt
 prompt = "Oragami Christmas Tree"
-
+img = Image.new('RGB', (512, 512))
 app = FastAPI()
+origins = ["*"]
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+def toB64(img):
+    buf = BytesIO()
+    img.save(buf, format="JPEG")
+    return base64.b64encode(buf.getvalue())
 
 @app.get("/")
 def read_root():
@@ -19,7 +34,7 @@ def read_root():
 
 @app.get("/check")
 def check():
-    return {"prompt": prompt}
+    return {"prompt": prompt, "image": toB64(img)}
 
 @app.post("/prompt")
 async def setprompt(pr: Request):
@@ -49,6 +64,7 @@ def gen(prompt):
     return img
 
 
+
 def fail(success):
     words = kwords("Write keywords to go with the following sentence. " + success)[0]['generated_text']
     uncompiled = []
@@ -62,9 +78,15 @@ def fail(success):
 
     return kwords("Form a scene using these keywords: " + uc)[0]['generated_text']
 
-while True:
+@app.get("/step/")
+def step():
+    global prompt
+    global img
+    print(prompt)
     img = gen(prompt)
+
     
     prompt = pipe(img)[0]['generated_text']
     prompt = fail(prompt)
     print("Last output \"" + prompt + "\"")
+    return {"result": 1}
