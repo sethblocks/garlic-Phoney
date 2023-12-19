@@ -8,13 +8,14 @@ from io import BytesIO
 import base64
 from PIL import Image
 from fastapi import FastAPI, Request
+from fastapi.responses import HTMLResponse
 from fastapi.middleware.cors import CORSMiddleware
 global prompt
 prompt = "Oragami Christmas Tree"
 img = Image.new('RGB', (512, 512))
 app = FastAPI()
 origins = ["*"]
-
+warp = 0
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -30,7 +31,11 @@ def toB64(img):
 
 @app.get("/")
 def read_root():
-    return "Garlic Phoney Server Online!"
+    return HTMLResponse("Garlic Phoney Server!")
+
+@app.get("/live")
+def read_root():
+    return HTMLResponse(open('page.htm').read())
 
 @app.get("/check")
 def check():
@@ -39,8 +44,10 @@ def check():
 @app.post("/prompt")
 async def setprompt(pr: Request):
     global prompt
+    global warp
     input = await pr.json()
     prompt = input["prompt"]
+    warp = input["warp"]
     return {"result": 1}
 
 #
@@ -66,11 +73,16 @@ def gen(prompt):
 
 
 def fail(success):
+    global warp
     words = kwords("Write keywords to go with the following sentence. " + success)[0]['generated_text']
     uncompiled = []
-    for w in words.split(" "):
-        uncompiled.append(w)
-        uncompiled.append(kwords("Q: what is similar to " + w)[0]['generated_text'])
+    if warp==0:
+        for w in words.split(" "):
+            uncompiled.append(w)
+            uncompiled.append(kwords("Q: what is similar to " + w)[0]['generated_text'])
+    else:
+        for w in words.split(" "):
+            uncompiled.append(kwords("Q: what is similar to " + w)[0]['generated_text'])
     uc =""
     for w in uncompiled:
         uc = uc + w + " "

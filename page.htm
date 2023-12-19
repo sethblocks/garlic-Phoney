@@ -33,10 +33,16 @@
                 background-color: #d8a8f8;
                 height: 94%;
                 margin: 2%;
-                width: 100%
+                width: 100%;
+                overflow-y: auto;
+                display: flex;
+                flex-direction: column-reverse;
                 
             }
-            
+            .static {
+                overflow-y: hidden;
+                display:inline;
+            }            
             .content{
                 display: flex;
                 background-color: #4d008b;
@@ -103,10 +109,10 @@
             <p class="desc">AI powered Gartic Phone Remake!</p>
         </div>
         <div class="content">
-            <div class="window" id="cprompt" style="height: 50px; border-top-right-radius: 10px; border-top-left-radius: 10px;">Disconnected :(</div>
+            <div class="window" id="cprompt" style="height: 50px; border-top-right-radius: 10px; border-top-left-radius: 10px;"></div>
             <div class="columns">
-                <div class="column">Disconnected! Are you using garlic.py?<img id="cphoto" src="" alt="Image will show here when connected"></div>
-                <div class="column" id="odat"style="width:40%">Please Wait...</div>
+                <div class="column static"><img style="height: 100%" id="cphoto" src="" alt="Image will show here when connected"></div>
+                <div  class="column" id="odat"style="width:40%"></div>
             </div>
 
 
