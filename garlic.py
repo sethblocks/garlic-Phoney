@@ -84,7 +84,13 @@ def fail(success):
         for w in words.split(" "):
             uncompiled.append(kwords("Q: what is similar to " + w)[0]['generated_text'])
     uc =""
+    "".lower
+    filtered = []
     for w in uncompiled:
+        if kwords("is this word kid friendly? " + w)[0]['generated_text'].lower == 'yes':
+            filtered.append(w)
+            
+    for w in filtered:
         uc = uc + w + " "
     uc.removesuffix(" ")
 
